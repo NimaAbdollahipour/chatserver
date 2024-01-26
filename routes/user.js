@@ -1,8 +1,19 @@
 const express = require('express');
 const User = require('../schemas/user');
+const multer = require('multer');
 const { generateToken, verifyToken, sendVerificationEmail } = require('../utils/auth');
 const router = express.Router();
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads')
+    },
+    filename: function (req, file, cb) {
+        cb(null, req.user.username + '.' + file.originalname.split('.').pop())
+    }
+})
+
+const upload = multer({ storage: storage })
 
 router.post('/signup', async function (req, res) {
     try {
@@ -58,6 +69,14 @@ router.post('/verify', verifyToken, async function (req, res) {
     } else {
         res.status(400).json({ msg: "email verification failed" });
     }
+});
+
+router.post('/profile-image', verifyToken, upload.single('photo'), async function (req, res) {
+    res.json({ msg: 'sent' });
+});
+
+router.put('/email', verifyToken, async function (req, res) {
+    //change email and change verified to false
 });
 
 module.exports = router;
