@@ -22,13 +22,13 @@ const verifyToken = async (req, res, next) => {
             req.user = currentUser;
             next();
         } else {
-            res.status(402).json({
-                msg: 'token is not valid or expired'
+            res.status(404).json({
+                msg: 'user not found'
             });
         }
-    } catch {
+    } catch (e){
         res.status(402).json({
-            msg: 'token is not valid or expired'
+            msg: 'token is not valid or expired',error:e.message
         });
     }
 }
@@ -56,9 +56,43 @@ const sendVerificationEmail = async (email, code) => {
     });
 }
 
+const sendResetEmail = async (email, password) => {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL,
+            pass: process.env.PASSWORD
+        }
+    });
+    const mailOptions = {
+        from: process.env.EMAIL,
+        to: email,
+        subject: 'chatgram password reset',
+        text: `Password: ${password}`
+    };
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+}
+
+const generateCode = async () => {
+    return Math.floor(100000 + Math.random() * 900000) + '';
+}
+
+const generatePassword = async (username) => {
+    return await generateCode() + await generateCode()
+}
+
 module.exports = {
     hashPassword,
     generateToken,
     verifyToken,
-    sendVerificationEmail
+    sendVerificationEmail,
+    sendResetEmail,
+    generateCode,
+    generatePassword
 }

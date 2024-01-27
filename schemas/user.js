@@ -45,10 +45,19 @@ const userSchema = new mongoose.Schema({
     verificationCode: {
         code: {
             type: String,
-            default: '' + Math.floor(Math.random() * 1000000)
+            default: ''
         },
         expiresIn: {
             type:Date
+        }
+    },
+    oneTimePassword: {
+        password: {
+            type: String,
+            default: null
+        },
+        expiresIn: {
+            type: Date
         }
     },
     blocked: [mongoose.Schema.Types.ObjectId],
