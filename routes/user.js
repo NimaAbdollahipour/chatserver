@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../schemas/user');
+const mongoose = require('mongoose');
 const multer = require('multer');
 const { generateToken, verifyToken, sendVerificationEmail, sendResetEmail, generateCode, generatePassword } = require('../utils/auth');
 const user = require('../schemas/user');
@@ -144,31 +145,73 @@ router.get('/reset-password', async function (req, res) {
     }
 })
 
-router.get('/details', async function (req, res) {
-     // send the user details (email, )
+router.get('/details', verifyToken, async function (req, res) {
+    const user = req.user;
+    res.json({
+        details: {
+            username: user.username,
+            email: user.password,
+            verified: user.verified
+        }
+    });
 })
 
-router.get('/prefrences', async function (req, res) {
+router.get('/prefrences', verifyToken, async function (req, res) {
+    const user = req.user;
+    res.json({
+        prefrences: {
+            blocked: user.blocked,
+            prefrences: user.prefrences,
+            hiddenChats: user.hiddenChats,
+            hiddenGroups: user.hiddenGroups
+        }
+    });
+})
+
+router.put('/block', verifyToken, async function (req, res) {
+    if (mongoose.Types.ObjectId.isValid(req.body.id)) {
+        if (await User.findOne({ _id: new mongoose.Types.ObjectId(req.body.id) })) {
+            if (!req.user.blocked.includes(new mongoose.Types.ObjectId(req.body.id))) {
+                req.user.blocked.unshift(new mongoose.Types.ObjectId(req.body.id));
+            }
+            req.user.save();
+            res.status(200).json({ msg: 'user blocked' });
+        } else {
+            res.status(404).json({ msg: 'user not found' });
+        }
+    } else {
+        res.status(400).json({ msg: 'send a valid id' });
+    }
+})
+
+router.put('/unblock', verifyToken, async function (req, res) {
+    if (mongoose.Types.ObjectId.isValid(req.body.id)) {
+        if (await User.findOne({ _id: new mongoose.Types.ObjectId(req.body.id) })) {
+            const index = req.user.blocked.indexOf(new mongoose.Types.ObjectId(req.body.id));
+            req.user.blocked.splice(index, 1);
+            req.user.save();
+            res.status(200).json({ msg: 'user unblocked' });
+        } else {
+            res.status(404).json({ msg: 'user not found' });
+        }
+    } else {
+        res.status(400).json({ msg: 'send a valid id' });
+    }
+})
+
+router.put('/prefrences/hide', verifyToken, async function (req, res) {
     // send the user details (email, )
 })
 
-router.put('/block', async function (req, res) {
+router.put('/prefrences/theme', verifyToken, async function (req, res) {
     // send the user details (email, )
 })
 
-router.put('/prefrences/hide', async function (req, res) {
+router.put('/prefrences/permitanonymous', verifyToken, async function (req, res) {
     // send the user details (email, )
 })
 
-router.put('/prefrences/theme', async function (req, res) {
-    // send the user details (email, )
-})
-
-router.put('/prefrences/permitanonymous', async function (req, res) {
-    // send the user details (email, )
-})
-
-router.put('/prefrences/permitgroup', async function (req, res) {
+router.put('/prefrences/permitgroup', verifyToken, async function (req, res) {
     // send the user details (email, )
 })
 
