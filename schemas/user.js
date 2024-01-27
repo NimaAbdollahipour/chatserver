@@ -72,7 +72,11 @@ const userSchema = new mongoose.Schema({
             type: Boolean,
             default: true
         },
-        canAddToGroup: [mongoose.Schema.Types.ObjectId],
+        permitGroup: {
+            type: Boolean,
+            default: true
+        },
+        permitionList: [mongoose.Schema.Types.ObjectId],
         theme: {
             type: String,
             default:"light"

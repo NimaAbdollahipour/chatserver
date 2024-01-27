@@ -163,7 +163,7 @@ router.get('/prefrences', verifyToken, async function (req, res) {
             blocked: user.blocked,
             prefrences: user.prefrences,
             hiddenChats: user.hiddenChats,
-            hiddenGroups: user.hiddenGroups
+            hiddenGroups: user.hiddenGroups,
         }
     });
 })
@@ -223,9 +223,9 @@ router.put('/prefrences/theme', verifyToken, async function (req, res) {
     }
 })
 
-router.put('/prefrences/permitanonymous', verifyToken, async function (req, res) {
+router.put('/prefrences/permit', verifyToken, async function (req, res) {
     try {
-        req.user.prefrences.allowAnonymous = req.body.anonymous;
+        req.user.prefrences.permitGroup = req.body.permitGroup;
         await req.user.save();
         res.status(200).json({ msg: 'updated successfuly' });
     } catch (e) {
@@ -233,6 +233,35 @@ router.put('/prefrences/permitanonymous', verifyToken, async function (req, res)
     }
 })
 
-// to do permition to add to group
+router.put('/prefrences/remove-permition', verifyToken, async function (req, res) {
+    if (mongoose.Types.ObjectId.isValid(req.body.id)) {
+        if (await User.findOne({ _id: new mongoose.Types.ObjectId(req.body.id) })) {
+            const index = req.user.prefrences.permitionList.indexOf(new mongoose.Types.ObjectId(req.body.id));
+            req.user.prefrences.permitionList.splice(index, 1);
+            req.user.save();
+            res.status(200).json({ msg: 'permition removed' });
+        } else {
+            res.status(404).json({ msg: 'user not found' });
+        }
+    } else {
+        res.status(400).json({ msg: 'send a valid id' });
+    }
+})
+
+router.put('/prefrences/add-permition', verifyToken, async function (req, res) {
+    if (mongoose.Types.ObjectId.isValid(req.body.id)) {
+        if (await User.findOne({ _id: new mongoose.Types.ObjectId(req.body.id) })) {
+            if (!req.user.prefrences.permitionList.includes(new mongoose.Types.ObjectId(req.body.id))) {
+                req.user.prefrences.permitionList.unshift(new mongoose.Types.ObjectId(req.body.id));
+            }
+            req.user.save();
+            res.status(200).json({ msg: 'permition added' });
+        } else {
+            res.status(404).json({ msg: 'user not found' });
+        }
+    } else {
+        res.status(400).json({ msg: 'send a valid id' });
+    }
+})
 
 module.exports = router;
