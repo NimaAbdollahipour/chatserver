@@ -200,19 +200,19 @@ router.put('/unblock', verifyToken, async function (req, res) {
 })
 
 router.put('/prefrences/hide', verifyToken, async function (req, res) {
-    // send the user details (email, )
+    // to do
 })
 
 router.put('/prefrences/theme', verifyToken, async function (req, res) {
-    // send the user details (email, )
+    // to do
 })
 
 router.put('/prefrences/permitanonymous', verifyToken, async function (req, res) {
-    // send the user details (email, )
+    // to do
 })
 
 router.put('/prefrences/permitgroup', verifyToken, async function (req, res) {
-    // send the user details (email, )
+    // to do
 })
 
 module.exports = router;
