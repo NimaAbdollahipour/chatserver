@@ -43,8 +43,13 @@ const userSchema = new mongoose.Schema({
         default: false
     },
     verificationCode: {
-        type: String,
-        default: '' + Math.floor(Math.random() * 1000000)
+        code: {
+            type: String,
+            default: '' + Math.floor(Math.random() * 1000000)
+        },
+        expiresIn: {
+            type:Date
+        }
     },
     blocked: [mongoose.Schema.Types.ObjectId],
     hiddenChats: [mongoose.Schema.Types.ObjectId],
@@ -65,10 +70,6 @@ const userSchema = new mongoose.Schema({
         }
     },
     profileImage: String,
-    isOnline: {
-        type: Boolean,
-        default: false
-    }
 });
 
 module.exports = mongoose.model('User', userSchema); 

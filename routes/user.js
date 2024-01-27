@@ -9,7 +9,9 @@ const storage = multer.diskStorage({
         cb(null, './uploads')
     },
     filename: function (req, file, cb) {
-        cb(null, req.user.username + '.' + file.originalname.split('.').pop())
+        req.user.profileImage = req.user.username + '.' + file.originalname.split('.').pop()
+        req.user.save()
+        cb(null, req.user.profileImage)
     }
 })
 
@@ -50,7 +52,7 @@ router.get('/verify', verifyToken, async function (req, res) {
         res.status(400).json({ msg: "email is already verified" });
     } else {
         const code = Math.floor(100000 + Math.random() * 900000);
-        req.user.verificationCode = code;
+        req.user.verificationCode = { code: code, expiresIn: new Date((new Date()).getTime() + 600000)};
         req.user.save();
         if (req.user) {
             sendVerificationEmail(req.user.email, code);
@@ -62,21 +64,35 @@ router.get('/verify', verifyToken, async function (req, res) {
 });
 
 router.post('/verify', verifyToken, async function (req, res) {
-    if (req.body.code === req.user.verificationCode) {
+    console.log(req.user.verificationCode.expiresIn, new Date());
+    if (req.body.code === req.user.verificationCode.code && req.user.verificationCode.expiresIn>new Date() ) {
         req.user.verified = true;
         req.user.save();
         res.status(200).json({ msg: "email verified" });
     } else {
-        res.status(400).json({ msg: "email verification failed" });
+        res.status(400).json({ msg: "email verification failed (wrong code or expired)" });
     }
 });
 
 router.post('/profile-image', verifyToken, upload.single('photo'), async function (req, res) {
-    res.json({ msg: 'sent' });
+    res.status(200).json({ msg: 'sent' });
+}); 
+
+router.get('/profile-image', verifyToken, async function (req, res) {
+    const imageName = req.user.profileImage;
+    const imagePath = process.cwd()+'/uploads/' + imageName;
+    res.sendFile(imagePath);
 });
 
 router.put('/email', verifyToken, async function (req, res) {
-    //change email and change verified to false
+    req.user.email = req.body.email;
+    req.user.verified = false;
+    try {
+        req.user.save();
+        res.status(200).json({ msg: "email updated, verify the email" })
+    } catch (e) {
+        res.status(400).json({ msg: e.message });
+    }
 });
 
 module.exports = router;
