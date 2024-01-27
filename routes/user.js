@@ -200,19 +200,39 @@ router.put('/unblock', verifyToken, async function (req, res) {
 })
 
 router.put('/prefrences/hide', verifyToken, async function (req, res) {
-    // to do
+    try {
+        req.user.prefrences.showHidden = req.body.hide;
+        await req.user.save();
+        res.status(200).json({ msg: 'updated successfuly' });
+    } catch (e) {
+        res.status(400).json({ msg: e.message });
+    }
 })
 
 router.put('/prefrences/theme', verifyToken, async function (req, res) {
-    // to do
+    if (req.body.theme === 'light' && req.body.theme === 'dark') {
+        try {
+            req.user.prefrences.showHidden = req.body.hide;
+            await req.user.save();
+            res.status(200).json({ msg: 'updated successfuly' });
+        } catch (e) {
+            res.status(400).json({ msg: e.message });
+        }
+    } else {
+        res.status(400).json({ msg: 'not a valid theme' });
+    }
 })
 
 router.put('/prefrences/permitanonymous', verifyToken, async function (req, res) {
-    // to do
+    try {
+        req.user.prefrences.allowAnonymous = req.body.anonymous;
+        await req.user.save();
+        res.status(200).json({ msg: 'updated successfuly' });
+    } catch (e) {
+        res.status(400).json({ msg: e.message });
+    }
 })
 
-router.put('/prefrences/permitgroup', verifyToken, async function (req, res) {
-    // to do
-})
+// to do permition to add to group
 
 module.exports = router;
