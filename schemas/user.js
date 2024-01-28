@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const bcrypt = require('bcrypt');
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: 8,
-        maxlength: 32,
+        maxlength: 256,
         validate: {
             validator: function (password) {
                 const hasUppercase = /[A-Z]/.test(password);
@@ -85,4 +85,17 @@ const userSchema = new mongoose.Schema({
     profileImage: String,
 });
 
-module.exports = mongoose.model('User', userSchema); 
+userSchema.pre('save', function(next) {
+    let user = this;
+    if (!user.isModified('password')) return next();
+    bcrypt.genSalt(10, function(err, salt) {
+        if (err) return next(err);
+        bcrypt.hash(user.password, salt, function(err, hash) {
+            if (err) return next(err);
+            user.password = hash;
+            next();
+        });
+    });
+});
+
+module.exports = mongoose.model('User', userSchema);

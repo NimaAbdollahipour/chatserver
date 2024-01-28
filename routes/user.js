@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../schemas/user');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const bcrypt = require('bcrypt');
 const { generateToken, verifyToken, sendVerificationEmail, sendResetEmail, generateCode, generatePassword } = require('../utils/auth');
 const user = require('../schemas/user');
 const router = express.Router();
@@ -36,16 +37,20 @@ router.post('/signin', async function (req, res) {
     res.clearCookie('token');
     const user = await User.findOne({
         $or: [
-            { username: req.body.username, password: req.body.password },
-            { email: req.body.username, password: req.body.password },
+            { username: req.body.username},
+            { email: req.body.username},
         ]
     });
     if (user) {
-        const token = await generateToken(user.username);
-        res.cookie('token', token);
-        res.status(200).json({ msg: "sign in successful" });
+        if (await bcrypt.compare(req.body.password, user.password)) {
+            const token = await generateToken(user.username);
+            res.cookie('token', token);
+            res.status(200).json({ msg: "sign in successful" });
+        } else {
+            res.status(400).json({ msg: "wrong password" });
+        }
     } else {
-        res.status(400).json({ msg: "wrong username or password" });
+        res.status(404).json({ msg: "user not found" });
     }
 });
 
