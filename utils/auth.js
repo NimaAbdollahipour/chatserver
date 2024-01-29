@@ -12,8 +12,12 @@ const generateToken = async (username) => {
     return await jwt.sign({ user: username }, process.env.SECRET_KEY, { expiresIn: '15m' });
 }
 
+const generateRefreshToken = async (username) => {
+    return await jwt.sign({ user: username }, process.env.SECRET_KEY, { expiresIn: '1y' });
+}
+
 const verifyToken = async (req, res, next) => {
-    const token = req.cookies.token;
+    const token = req.headers['authorization'].split(' ')[1];
     try {
         jwt.verify(token, process.env.SECRET_KEY);
         const tokenData = jwt.decode(token);
@@ -27,7 +31,7 @@ const verifyToken = async (req, res, next) => {
             });
         }
     } catch (e){
-        res.status(402).json({
+        res.status(401).json({
             msg: 'token is not valid or expired',error:e.message
         });
     }

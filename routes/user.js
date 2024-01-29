@@ -44,14 +44,20 @@ router.post('/signin', async function (req, res) {
     if (user) {
         if (await bcrypt.compare(req.body.password, user.password)) {
             const token = await generateToken(user.username);
-            res.cookie('token', token);
-            res.status(200).json({ msg: "sign in successful" });
+            const refreshToken = await generateRefreshToken(user.username);
+            res.status(200).json({ msg: "sign in successful", token: token, refreshToken:refreshToken });
         } else {
             res.status(400).json({ msg: "wrong password" });
         }
     } else {
         res.status(404).json({ msg: "user not found" });
     }
+});
+
+router.post('/refresh', verifyToken, async function (req, res) {
+    const token = await generateToken(user.username);
+    const refreshToken = await generateRefreshToken(user.username);
+    res.status(200).json({ msg: "sign in successful", token: token, refreshToken: refreshToken });
 });
 
 router.post('/one-time-signin', async function (req, res) {
@@ -64,10 +70,9 @@ router.post('/one-time-signin', async function (req, res) {
     });
     if (user.oneTimePassword.password && user.oneTimePassword.password === req.body.password && user.oneTimePassword.expiresIn>(new Date())) {
         const token = await generateToken(user.username);
-        res.cookie('token', token);
         user.oneTimePassword.password = null;
         user.save();
-        res.status(200).json({ msg: "sign in successful change your password" });
+        res.status(200).json({ msg: "sign in successful change your password", token:token });
     } else {
         user.oneTimePassword.password = null;
         user.save();
@@ -146,7 +151,7 @@ router.get('/reset-password', async function (req, res) {
         user.save();
         res.status(200).json({ msg: "one time password sent to email" });
     } else {
-        res.status(402).json({ msg: "email is not verified" });
+        res.status(401).json({ msg: "email is not verified" });
     }
 })
 
