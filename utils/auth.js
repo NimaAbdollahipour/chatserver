@@ -26,8 +26,8 @@ const verifyToken = async (req, res, next) => {
             req.user = currentUser;
             next();
         } else {
-            res.status(404).json({
-                msg: 'user not found'
+            res.status(401).json({
+                msg: 'token is not valid (username not found)'
             });
         }
     } catch (e){
@@ -98,5 +98,6 @@ module.exports = {
     sendVerificationEmail,
     sendResetEmail,
     generateCode,
-    generatePassword
+    generatePassword,
+    generateRefreshToken
 }

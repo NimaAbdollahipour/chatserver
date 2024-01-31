@@ -3,7 +3,7 @@ const User = require('../schemas/user');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const bcrypt = require('bcrypt');
-const { generateToken, verifyToken, sendVerificationEmail, sendResetEmail, generateCode, generatePassword } = require('../utils/auth');
+const { generateToken, verifyToken, sendVerificationEmail, sendResetEmail, generateCode, generatePassword, generateRefreshToken } = require('../utils/auth');
 const user = require('../schemas/user');
 const router = express.Router();
 
@@ -54,7 +54,7 @@ router.post('/signin', async function (req, res) {
     }
 });
 
-router.post('/refresh', verifyToken, async function (req, res) {
+router.get('/refresh', verifyToken, async function (req, res) {
     const token = await generateToken(user.username);
     const refreshToken = await generateRefreshToken(user.username);
     res.status(200).json({ msg: "sign in successful", token: token, refreshToken: refreshToken });

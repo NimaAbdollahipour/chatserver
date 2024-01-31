@@ -1,8 +1,11 @@
 const mongoose = require('mongoose');
 
 const fileSchema = new mongoose.Schema({
-    sender: mongoose.Schema.ObjectId,
-    title: mongoose.Schema.ObjectId,
+    sender: mongoose.Schema.Types.ObjectId,
+    title: {
+        type: String,
+        required: true
+    },
     address: {
         type: String,
         required: true
@@ -11,6 +14,10 @@ const fileSchema = new mongoose.Schema({
     uploadedAt: {
         type: Date,
         default: new Date()
+    },
+    fileType: {
+        type: String,
+        required: true
     }
 })
 

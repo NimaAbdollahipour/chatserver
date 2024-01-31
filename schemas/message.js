@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema({
-    sender: mongoose.Schema.ObjectId,
-    chat: mongoose.Schema.ObjectId,
+    sender: mongoose.Schema.Types.ObjectId,
+    chat: mongoose.Schema.Types.ObjectId,
     content: String,
     seen: {
         type: Boolean,
@@ -22,6 +22,9 @@ const messageSchema = new mongoose.Schema({
     changed: {
         type: Boolean,
         default: false
+    },
+    replyTo: {
+        type: mongoose.Schema.Types.ObjectId,
     }
 })
 
