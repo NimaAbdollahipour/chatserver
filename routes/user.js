@@ -113,8 +113,12 @@ router.post('/profile-image', verifyToken, upload.single('photo'), async functio
 
 router.get('/profile-image', verifyToken, async function (req, res) {
     const imageName = req.user.profileImage;
-    const imagePath = process.cwd()+'/uploads/' + imageName;
-    res.sendFile(imagePath);
+    if (imageName) {
+        const imagePath = process.cwd() + '/uploads/' + imageName;
+        res.sendFile(imagePath);
+    } else {
+        res.status(404).json({ msg: 'image not found' });
+    }
 });
 
 router.put('/email', verifyToken, async function (req, res) {
