@@ -1,20 +1,22 @@
 const mongoose = require('mongoose');
+const { messageSchema } = require('./message')
 
 const chatSchema = new mongoose.Schema({
-    usersOne: mongoose.Schema.Types.ObjectId,
-    usersTwo: mongoose.Schema.Types.ObjectId,
-    lastMessage: {
-        content: String,
-        date: Date,
-    },
-    userOnePrefrences: {
-        notifications: Boolean,
-        hidden: Boolean
-    },
-    userTwoPrefrences: {
-        notifications: Boolean,
-        hidden: Boolean
-    }
+    lastMessage: messageSchema,
+    participants: [{
+        user:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'User'
+        },
+        unreadMessages:{
+            type:Number,
+            default:1
+        },
+        inChat:{
+            type:Boolean,
+            default:false
+        }
+    }]
 })
 
 module.exports = mongoose.model('Chat', chatSchema);

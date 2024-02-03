@@ -61,8 +61,6 @@ const userSchema = new mongoose.Schema({
         }
     },
     blocked: [mongoose.Schema.Types.ObjectId],
-    hiddenChats: [mongoose.Schema.Types.ObjectId],
-    hiddenGroups: [mongoose.Schema.Types.ObjectId],
     prefrences: {
         showHidden: {
             type: Boolean,
@@ -72,11 +70,6 @@ const userSchema = new mongoose.Schema({
             type: Boolean,
             default: true
         },
-        permitGroup: {
-            type: Boolean,
-            default: true
-        },
-        permitionList: [mongoose.Schema.Types.ObjectId],
         theme: {
             type: String,
             default:"light"

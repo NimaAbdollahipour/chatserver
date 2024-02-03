@@ -91,6 +91,22 @@ const generatePassword = async (username) => {
     return await generateCode() + await generateCode()
 }
 
+const socketIoAuth = async (socket,next)=>{
+    const token = socket.handshake.auth.token;
+    if(!token){
+        return next(new Error('authentication failed'))
+    }
+    jwt.verify(token,process.env.SECRET_KEY,(err,decoded)=>{
+        if(err){
+            return next(new Error('authentication failed'))
+        }
+        User.findOne({username:decoded.user},{_id:1,username:1}).then(result=>{
+            socket.user = result
+        })
+    })
+    next();
+}
+
 module.exports = {
     hashPassword,
     generateToken,
@@ -99,5 +115,6 @@ module.exports = {
     sendResetEmail,
     generateCode,
     generatePassword,
-    generateRefreshToken
+    generateRefreshToken,
+    socketIoAuth
 }

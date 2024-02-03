@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const {fileSchema} = require('./file')
 const messageSchema = new mongoose.Schema({
     sender: mongoose.Schema.Types.ObjectId,
     chat: mongoose.Schema.Types.ObjectId,
@@ -34,4 +34,5 @@ messageSchema.pre('save', function (next) {
     next();
 });
 
-module.exports = mongoose.model('Message', messageSchema);
+const Message = mongoose.model('Message', messageSchema)
+module.exports = {Message,messageSchema}

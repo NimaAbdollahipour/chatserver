@@ -109,7 +109,7 @@ router.post('/verify', verifyToken, async function (req, res) {
 
 router.post('/profile-image', verifyToken, upload.single('photo'), async function (req, res) {
     res.status(200).json({ msg: 'sent' });
-}); 
+});
 
 router.get('/profile-image', verifyToken, async function (req, res) {
     const imageName = req.user.profileImage;
@@ -146,7 +146,7 @@ router.put('/password', verifyToken, async function (req, res) {
     }
 })
 
-router.get('/reset-password', async function (req, res) {
+router.get('/get-password', async function (req, res) {
     const user = await User.findOne({ $or: [{ username: req.body.username }, { email: req.body.username }] });
     if (user.verified) {
         const password = await generatePassword();
@@ -166,18 +166,6 @@ router.get('/details', verifyToken, async function (req, res) {
             username: user.username,
             email: user.password,
             verified: user.verified
-        }
-    });
-})
-
-router.get('/prefrences', verifyToken, async function (req, res) {
-    const user = req.user;
-    res.json({
-        prefrences: {
-            blocked: user.blocked,
-            prefrences: user.prefrences,
-            hiddenChats: user.hiddenChats,
-            hiddenGroups: user.hiddenGroups,
         }
     });
 })
@@ -205,71 +193,6 @@ router.put('/unblock', verifyToken, async function (req, res) {
             req.user.blocked.splice(index, 1);
             req.user.save();
             res.status(200).json({ msg: 'user unblocked' });
-        } else {
-            res.status(404).json({ msg: 'user not found' });
-        }
-    } else {
-        res.status(400).json({ msg: 'send a valid id' });
-    }
-})
-
-router.put('/prefrences/hide', verifyToken, async function (req, res) {
-    try {
-        req.user.prefrences.showHidden = req.body.hide;
-        await req.user.save();
-        res.status(200).json({ msg: 'updated successfuly' });
-    } catch (e) {
-        res.status(400).json({ msg: e.message });
-    }
-})
-
-router.put('/prefrences/theme', verifyToken, async function (req, res) {
-    if (req.body.theme === 'light' && req.body.theme === 'dark') {
-        try {
-            req.user.prefrences.showHidden = req.body.hide;
-            await req.user.save();
-            res.status(200).json({ msg: 'updated successfuly' });
-        } catch (e) {
-            res.status(400).json({ msg: e.message });
-        }
-    } else {
-        res.status(400).json({ msg: 'not a valid theme' });
-    }
-})
-
-router.put('/prefrences/permit', verifyToken, async function (req, res) {
-    try {
-        req.user.prefrences.permitGroup = req.body.permitGroup;
-        await req.user.save();
-        res.status(200).json({ msg: 'updated successfuly' });
-    } catch (e) {
-        res.status(400).json({ msg: e.message });
-    }
-})
-
-router.put('/prefrences/remove-permition', verifyToken, async function (req, res) {
-    if (mongoose.Types.ObjectId.isValid(req.body.id)) {
-        if (await User.findOne({ _id: new mongoose.Types.ObjectId(req.body.id) })) {
-            const index = req.user.prefrences.permitionList.indexOf(new mongoose.Types.ObjectId(req.body.id));
-            req.user.prefrences.permitionList.splice(index, 1);
-            req.user.save();
-            res.status(200).json({ msg: 'permition removed' });
-        } else {
-            res.status(404).json({ msg: 'user not found' });
-        }
-    } else {
-        res.status(400).json({ msg: 'send a valid id' });
-    }
-})
-
-router.put('/prefrences/add-permition', verifyToken, async function (req, res) {
-    if (mongoose.Types.ObjectId.isValid(req.body.id)) {
-        if (await User.findOne({ _id: new mongoose.Types.ObjectId(req.body.id) })) {
-            if (!req.user.prefrences.permitionList.includes(new mongoose.Types.ObjectId(req.body.id))) {
-                req.user.prefrences.permitionList.unshift(new mongoose.Types.ObjectId(req.body.id));
-            }
-            req.user.save();
-            res.status(200).json({ msg: 'permition added' });
         } else {
             res.status(404).json({ msg: 'user not found' });
         }
